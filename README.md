@@ -89,10 +89,31 @@ docker compose up -d
 
 ### Mod の追加
 
-`data/mods/` に Fabric 対応 mod の `.jar` を配置して再起動するだけです。
+`data/mods/` は git 管理下にあり(`data/` の他のサブディレクトリ/ファイルは
+`.gitignore` で除外、`data/mods/` のみ例外)、他環境でも同じ mod 構成を
+再現できるようにしています。
+
+```bash
+cd /home/ubuntu/kyousya-mc-server
+
+# 1. Fabric対応 (MC 26.2用) の mod jar を配置。コンテナ内uidに合わせて所有権を変更
+sudo cp ~/Downloads/some-mod.jar data/mods/
+sudo chown 1000:1000 data/mods/*.jar
+
+# 2. 反映
+docker compose restart
+docker compose logs -f   # "Loading N mods:" でロード内容を確認
+
+# 3. git へも反映する場合
+git add data/mods
+git commit -m "Add <mod名> mod"
+git push
+```
+
 多くの mod が依存する [Fabric API](https://modrinth.com/mod/fabric-api) は、
 サーバーに合わせたバージョン (Minecraft 26.2 用) をダウンロードして同じく
-`data/mods/` に置いてください。
+`data/mods/` に置いてください。サーバー専用ではない mod は、接続する
+プレイヤー側の Fabric クライアントにも同じ mod (同バージョン) が必要です。
 
 ### バックアップ
 
