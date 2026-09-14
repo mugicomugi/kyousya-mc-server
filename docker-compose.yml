@@ -1,0 +1,44 @@
+services:
+  fabric-server:
+    build:
+      context: .
+      args:
+        MC_VERSION: ${MC_VERSION:-26.2}
+        LOADER_VERSION: ${LOADER_VERSION:-0.19.5}
+        INSTALLER_VERSION: ${INSTALLER_VERSION:-1.1.2}
+    image: kyousya-mc-server:${MC_VERSION:-26.2}
+    container_name: kyousya-mc-fabric
+    restart: unless-stopped
+    stop_grace_period: 90s
+    ports:
+      - "${SERVER_PORT:-25565}:25565/tcp"
+      # RCONを有効化する場合のみコメント解除して公開する(通常は外部非公開のまま推奨)
+      # - "127.0.0.1:${RCON_PORT:-25575}:25575/tcp"
+    volumes:
+      - ./data:/data
+    environment:
+      EULA: "${EULA:-FALSE}"
+      MOTD: "${MOTD:-A Fabric Minecraft Server}"
+      DIFFICULTY: "${DIFFICULTY:-normal}"
+      GAMEMODE: "${GAMEMODE:-survival}"
+      MAX_PLAYERS: "${MAX_PLAYERS:-20}"
+      ONLINE_MODE: "${ONLINE_MODE:-true}"
+      PVP: "${PVP:-true}"
+      VIEW_DISTANCE: "${VIEW_DISTANCE:-10}"
+      SIMULATION_DISTANCE: "${SIMULATION_DISTANCE:-10}"
+      WHITELIST: "${WHITELIST:-false}"
+      LEVEL_SEED: "${LEVEL_SEED:-}"
+      ENABLE_RCON: "${ENABLE_RCON:-false}"
+      RCON_PASSWORD: "${RCON_PASSWORD:-}"
+      RCON_PORT: "${RCON_PORT:-25575}"
+      MEMORY_MIN: "${MEMORY_MIN:-2G}"
+      MEMORY_MAX: "${MEMORY_MAX:-6G}"
+      JAVA_OPTS: "${JAVA_OPTS:-}"
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/25565"]
+      interval: 30s
+      timeout: 5s
+      start_period: 180s
+      retries: 5
